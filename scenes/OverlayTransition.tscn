@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://assets/sounds/gameStartSound.wav" type="AudioStream" id=1]
+
+[sub_resource type="Animation" id=1]
+resource_name = "transition"
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 0.0745098, 0.0745098, 0.0745098, 0 ), Color( 0.0745098, 0.0745098, 0.0745098, 1 ) ]
+}
+
+[node name="OverlayTransition" type="Node2D"]
+scale = Vector2( 1.36986, 1.36986 )
+z_index = 1
+
+[node name="OverlayRect" type="ColorRect" parent="."]
+margin_left = -275.334
+margin_top = -159.322
+margin_right = 748.666
+margin_bottom = 440.678
+mouse_filter = 1
+color = Color( 0.0745098, 0.0745098, 0.0745098, 0 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OverlayRectAnimationPlayer" type="AnimationPlayer" parent="OverlayRect"]
+anims/transition = SubResource( 1 )
+
+[node name="TransitionPlayer" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 1 )

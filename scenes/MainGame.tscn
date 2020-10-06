@@ -1,0 +1,135 @@
+[gd_scene load_steps=16 format=2]
+
+[ext_resource path="res://scripts/LightBeam.gd" type="Script" id=1]
+[ext_resource path="res://scenes/Mirror.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scripts/ScoreLabel.gd" type="Script" id=3]
+[ext_resource path="res://scripts/PlayerVariables.gd" type="Script" id=4]
+[ext_resource path="res://assets/fonts/Muli.ttf" type="DynamicFontData" id=5]
+[ext_resource path="res://scripts/Trail.gd" type="Script" id=6]
+[ext_resource path="res://assets/sounds/bounce.wav" type="AudioStream" id=7]
+[ext_resource path="res://assets/sprites/beam.png" type="Texture" id=8]
+[ext_resource path="res://scripts/Sprite.gd" type="Script" id=9]
+[ext_resource path="res://scripts/ReflectionSoundPlayer.gd" type="Script" id=10]
+[ext_resource path="res://assets/sounds/gameOverSound.wav" type="AudioStream" id=11]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 19.1994, 20.1196 )
+
+[sub_resource type="Gradient" id=2]
+offsets = PoolRealArray( 0.00363636, 0.374545, 0.716364, 1 )
+colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 0.817518, 0.547445, 1, 1, 0.695708, 0.912877, 1, 1, 0.666667, 1 )
+
+[sub_resource type="DynamicFont" id=3]
+size = 96
+outline_color = Color( 1, 1, 1, 0.678431 )
+font_data = ExtResource( 5 )
+
+[sub_resource type="Animation" id=4]
+resource_name = "fade_in"
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:custom_colors/font_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
+}
+
+[node name="MainGame" type="Node2D"]
+
+[node name="Background" type="ColorRect" parent="."]
+margin_right = 1024.0
+margin_bottom = 600.0
+color = Color( 0.0745098, 0.0745098, 0.0745098, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Mirror1" parent="." instance=ExtResource( 2 )]
+position = Vector2( 0, 40 )
+reflection_direction = "East"
+
+[node name="Mirror2" parent="." instance=ExtResource( 2 )]
+position = Vector2( 880, 200 )
+rotation = -1.5708
+reflection_direction = "South"
+
+[node name="Mirror3" parent="." instance=ExtResource( 2 )]
+position = Vector2( 1027.26, 562.722 )
+rotation = -3.14159
+reflection_direction = "West"
+
+[node name="Mirror4" parent="." instance=ExtResource( 2 )]
+position = Vector2( 155.763, 408.174 )
+rotation = -4.71239
+reflection_direction = "North"
+
+[node name="LightBeam" type="Node2D" parent="."]
+position = Vector2( 512, 300 )
+
+[node name="KinematicBody2D" type="KinematicBody2D" parent="LightBeam"]
+script = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LightBeam/KinematicBody2D"]
+position = Vector2( -0.0183411, 0.900391 )
+scale = Vector2( 0.253493, 0.240707 )
+shape = SubResource( 1 )
+
+[node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="LightBeam/KinematicBody2D"]
+position = Vector2( -5, -24 )
+rect = Rect2( 0, 20, 10, 10 )
+
+[node name="Trail" type="Line2D" parent="LightBeam/KinematicBody2D"]
+default_color = Color( 1, 1, 1, 1 )
+gradient = SubResource( 2 )
+script = ExtResource( 6 )
+targetPath = NodePath("..")
+trailLength = 20
+
+[node name="Sprite" type="Sprite" parent="LightBeam/KinematicBody2D"]
+scale = Vector2( 0.2, 0.2 )
+texture = ExtResource( 8 )
+script = ExtResource( 9 )
+
+[node name="GameOverSoundPlayer" type="AudioStreamPlayer2D" parent="LightBeam/KinematicBody2D"]
+stream = ExtResource( 11 )
+
+[node name="ReflectionSoundPlayer" type="AudioStreamPlayer2D" parent="LightBeam"]
+stream = ExtResource( 7 )
+attenuation = 1.23114
+script = ExtResource( 10 )
+
+[node name="PlayerVariables" type="Node" parent="."]
+script = ExtResource( 4 )
+
+[node name="ScoreLabel" type="Label" parent="."]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_left = 470.648
+margin_top = 185.817
+margin_right = 528.648
+margin_bottom = 328.817
+custom_fonts/font = SubResource( 3 )
+custom_colors/font_color = Color( 1, 1, 1, 0 )
+align = 1
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FadeInTimer" type="Timer" parent="ScoreLabel"]
+one_shot = true
+autostart = true
+
+[node name="FadeInAnimationPlayer" type="AnimationPlayer" parent="ScoreLabel"]
+anims/fade_in = SubResource( 4 )
+[connection signal="screen_exited" from="LightBeam/KinematicBody2D/VisibilityNotifier2D" to="LightBeam/KinematicBody2D" method="_on_VisibilityNotifier2D_screen_exited"]
+[connection signal="player_score_signal" from="PlayerVariables" to="LightBeam/KinematicBody2D" method="_on_PlayerVariables_player_score_signal"]
+[connection signal="player_score_signal" from="PlayerVariables" to="LightBeam/ReflectionSoundPlayer" method="_on_PlayerVariables_player_score_signal"]
+[connection signal="player_score_signal" from="PlayerVariables" to="LightBeam/KinematicBody2D/Sprite" method="_on_PlayerVariables_player_score_signal"]
+[connection signal="player_score_signal" from="PlayerVariables" to="ScoreLabel" method="_on_PlayerVariables_player_score_signal"]
+[connection signal="timeout" from="ScoreLabel/FadeInTimer" to="ScoreLabel" method="_on_Timer_timeout"]
